@@ -32,26 +32,13 @@ Você sobe um CSV de vendas, o **Glue** transforma em **Parquet particionado**, 
 
 ## 🏗 Arquitetura
 
-```
- data/vendas.csv
-       │  (upload via boto3)
-       ▼
- ┌───────────────┐   Glue Job (PySpark)    ┌─────────────────────┐
- │ S3  raw/      │ ──────────────────────► │ S3  curated/        │
- │ vendas.csv    │  limpa + tipa + Parquet │ ano=2024/mes=1/...  │
- └───────────────┘                         └──────────┬──────────┘
-                                                      │ Glue Crawler
-                                                      ▼
-                                           ┌─────────────────────┐
-                                           │ Glue Data Catalog   │
-                                           │ vendas_db.vendas    │
-                                           └──────────┬──────────┘
-                                                      │ SQL
-                                                      ▼
-                                           ┌─────────────────────┐
-                                           │ Amazon Athena       │
-                                           │ resultados em S3    │
-                                           └─────────────────────┘
+```mermaid
+flowchart LR
+    A[data/vendas.csv] -->|upload com boto3| B[(S3 raw/)]
+    B -->|Glue Job PySpark| C[(S3 curated/<br/>Parquet ano/mes)]
+    C -->|Glue Crawler| D[Data Catalog<br/>vendas_db.vendas]
+    D -->|SQL| E[Athena]
+    E -->|resultados| F[(S3 athena-results/)]
 ```
 
 ## 📁 Estrutura do projeto
